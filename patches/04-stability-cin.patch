@@ -1,0 +1,36 @@
+diff --git a/source/server/resources/cin.c b/source/server/resources/cin.c
+index 43e282f..bf7900b 100644
+--- a/source/server/resources/cin.c
++++ b/source/server/resources/cin.c
+@@ -6,6 +6,8 @@
+ #include "../util.h"
+ #include "../dbmanager.h"
+ #include "../config.h"
++#include <pthread.h>
++extern pthread_mutex_t main_lock;
+ 
+ extern ResourceTree *rt;
+ extern cJSON *ATTRIBUTES;
+@@ -122,6 +124,12 @@ int create_cin(oneM2MPrimitive *o2pt, RTNode *parent_rtnode)
+         return o2pt->rsc;
+     }
+ 
++    /* Replace the cached latest contentInstance ('la' child) under main_lock,
++       like other resource-tree accesses. main_lock is recursive.
++       (stability patch) */
++#if MONO_THREAD == 0
++    pthread_mutex_lock(&main_lock);
++#endif
+     RTNode *rtnode = parent_rtnode->child;
+     if (!rtnode)
+     {
+@@ -151,6 +159,9 @@ int create_cin(oneM2MPrimitive *o2pt, RTNode *parent_rtnode)
+             free_rtnode(cin_rtnode);
+         }
+     }
++#if MONO_THREAD == 0
++    pthread_mutex_unlock(&main_lock);
++#endif
+     cJSON_DetachItemFromObject(root, "m2m:cin");
+     cJSON_Delete(root);
+ 

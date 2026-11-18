@@ -1,0 +1,12 @@
+diff --git a/source/server/main.c b/source/server/main.c
+index 1faa9f7..000aaa4 100644
+--- a/source/server/main.c
++++ b/source/server/main.c
+@@ -167,6 +167,7 @@ static ssize_t cmdline_read_key(char *arg, unsigned char **buf, size_t maxlen)
+ int main(int argc, char **argv)
+ {
+ 	signal(SIGINT, stop_server);
++	signal(SIGPIPE, SIG_IGN); /* stability patch */
+ 	logger_init();
+ 
+ #if MONO_THREAD == 0

@@ -1,0 +1,54 @@
+{
+  "model": "RandomForestClassifier",
+  "rf_params": {
+    "n_estimators": 300,
+    "min_samples_leaf": 3,
+    "max_features": "sqrt",
+    "class_weight": "balanced_subsample",
+    "random_state": 0,
+    "n_jobs": 1
+  },
+  "features": [
+    "freq_norm",
+    "road_temp",
+    "air_temp",
+    "air_hum",
+    "freq_norm_med_1h",
+    "freq_norm_std_1h",
+    "zero_frac_6h",
+    "zero_run_h",
+    "hours_since_wet",
+    "road_temp_slope_1h",
+    "hours_below_zero",
+    "dewpoint_margin",
+    "freq_missing",
+    "road_missing",
+    "dht_missing"
+  ],
+  "fill_value": -999.0,
+  "classes": [
+    "Dry",
+    "Wet",
+    "Frozen"
+  ],
+  "safety": {
+    "max_prob": 0.6,
+    "frozen_prob": 0.25,
+    "rule": "if max probability < max_prob and P(Frozen) > frozen_prob, the state becomes Frozen"
+  },
+  "trained_on": {
+    "set": "synthetic labelled time series (generator and training code not included in this repository)",
+    "rows": 8208,
+    "class_counts": {
+      "Dry": 3764,
+      "Wet": 1190,
+      "Frozen": 3254
+    }
+  },
+  "model_version": "0.4.0",
+  "provenance": "synthetic",
+  "sklearn_version": "1.9.1",
+  "numpy_version": "2.5.3",
+  "trained_at": "2026-09-29T13:22:51",
+  "warning": "Reference model trained on synthetic data for the demo. Do not use it as evidence of real-road performance."
+}

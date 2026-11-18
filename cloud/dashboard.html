@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Road Icing Monitor</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --ink:#1d2733; --mute:#6b7685; --line:#e3e7ec;
+          --dry:#2e9e5b; --wet:#d99a12; --frozen:#d64545; --none:#c9cfd6; --accent:#004f7c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; align-items:baseline; gap:14px; padding:18px 28px; background:#fff; border-bottom:1px solid var(--line); }
+  header h1 { margin:0; font-size:20px; }
+  header .sub { color:var(--mute); }
+  header .right { margin-left:auto; color:var(--mute); font-size:13px; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:12px; background:#eef1f5; color:#3a4656; }
+  .badge.syn { background:#fff3d6; color:#7a5300; }
+  main { padding:22px 28px; display:grid; grid-template-columns: 2fr 1fr; gap:20px; }
+  .nodes { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; align-items:start; align-content:start; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .node h2 { margin:0 0 8px; font-size:15px; display:flex; justify-content:space-between; }
+  .state { font-size:30px; font-weight:700; margin:4px 0 2px; }
+  .state.Dry { color:var(--dry); } .state.Wet { color:var(--wet); } .state.Frozen { color:var(--frozen); }
+  .conf { color:var(--mute); }
+  .kv { display:grid; grid-template-columns: auto 1fr; gap:2px 12px; margin-top:10px; font-size:13px; }
+  .kv span:nth-child(odd) { color:var(--mute); }
+  .strip { display:flex; gap:2px; margin-top:12px; height:16px; }
+  .strip i { flex:1; border-radius:2px; background:var(--none); }
+  .strip i.Dry { background:var(--dry); } .strip i.Wet { background:var(--wet); } .strip i.Frozen { background:var(--frozen); }
+  .node.alert { border-color:var(--frozen); box-shadow:0 0 0 2px rgba(214,69,69,.15); }
+  h3 { margin:0 0 10px; font-size:14px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  td, th { text-align:left; padding:5px 4px; border-bottom:1px solid var(--line); }
+  th { color:var(--mute); font-weight:600; }
+  .side { display:flex; flex-direction:column; gap:20px; }
+  .pill { padding:1px 7px; border-radius:9px; color:#fff; font-size:12px; }
+  .pill.running { background:var(--dry); } .pill.stopped { background:var(--mute); } .pill.deployed { background:var(--accent); }
+  .empty { color:var(--mute); font-style:italic; }
+  footer { padding:0 28px 22px; color:var(--mute); font-size:12px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Road Icing Monitor</h1>
+  <span class="sub">oneM2M on ETSI MEC &middot; cloud view (Mobius4 IN-CSE)</span>
+  <span class="right"><span class="badge syn">synthetic input</span> &nbsp;updated <span id="clock">-</span></span>
+</header>
+<main>
+  <section class="nodes" id="nodes"></section>
+  <section class="side">
+    <div class="card"><h3>Model deployment (TR-0071, Rel-5 candidate)</h3><div id="deploy" class="empty">-</div></div>
+    <div class="card"><h3>V2X warnings (MEC 030 DENM)</h3><div id="warnings" class="empty">none yet</div></div>
+    <div class="card"><h3>State changes</h3><div id="events" class="empty">none yet</div></div>
+  </section>
+</main>
+<footer>Edge inference runs on the MEC host next to the tinyIoT MN-CSE; this page reads results through the IN-CSE and keeps a copy in Mobius/icing/history. Input is synthetic &mdash; states shown are a pipeline demonstration, not measured road conditions.</footer>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function nodeCard(k, n) {
+  const r = n.latest || {};
+  const st = r.state || "-";
+  const strip = Array.from({length: 64}, (_, i) => {
+    const s = n.strip[n.strip.length - 64 + i]; return `<i class="${s || ""}"></i>`; }).join("");
+  return `<div class="card node ${st === "Frozen" ? "alert" : ""}">
+    <h2><span>Node ${k}</span><span class="badge">${esc(r.deployment || "")}</span></h2>
+    <div class="state ${st}">${esc(st)}</div>
+    <div class="conf">confidence ${r.confidence != null ? (r.confidence * 100).toFixed(1) + "%" : "-"}
+      ${r.safety_applied ? ' &middot; <b>safety rule</b>' : ''}${r.held_by_wet_confirm ? ' &middot; wet pending' : ''}</div>
+    <div class="kv">
+      <span>measured at</span><span>${esc(r.ts || "-")}</span>
+      <span>road temp</span><span>${r.road_temp != null ? esc(r.road_temp) + " &deg;C" : "-"}</span>
+      <span>oscillator</span><span>${r.freq != null ? esc(r.freq) + " Hz" : "-"}</span>
+      <span>model</span><span>${esc(r.model || "-")}</span>
+      <span>archived in IN</span><span>${n.archived}</span>
+    </div>
+    <div class="strip" title="last 64 results, oldest left">${strip}</div>
+  </div>`;
+}
+async function tick() {
+  try {
+    const s = await (await fetch("/api/state")).json();
+    document.getElementById("clock").textContent = s.time;
+    document.getElementById("nodes").innerHTML = Object.entries(s.nodes).map(([k, n]) => nodeCard(k, n)).join("");
+    const d = s.deploy || {};
+    const items = Object.entries(d.items || {});
+    document.getElementById("deploy").innerHTML = items.length ? `<table><tr><th>deployment</th><th>status</th></tr>${
+      items.map(([k, v]) => `<tr><td>${esc(k)}</td><td><span class="pill ${esc(v)}">${esc(v)}</span></td></tr>`).join("")}</table>
+      <div style="margin-top:6px;color:var(--mute)">running ${d.running ?? "-"} &middot; stopped ${d.stopped ?? "-"}</div>` : "-";
+    const w = s.warnings || [];
+    document.getElementById("warnings").innerHTML = w.length ? `<table><tr><th>time</th><th>node</th><th>vehicle</th><th>distance</th><th>result</th></tr>${
+      w.map(x => `<tr><td>${esc(x.t)}</td><td>${esc(x.node)}</td><td>${esc(x.ue)}</td><td>${esc(x.distance_m)} m</td><td>${esc(x.result)}</td></tr>`).join("")}</table>` : "none yet";
+    const e = s.events || [];
+    document.getElementById("events").innerHTML = e.length ? `<table><tr><th>node</th><th>measured</th><th>change</th></tr>${
+      e.slice(0, 12).map(x => `<tr><td>${esc(x.node)}</td><td>${esc(String(x.ts).replace("T", " ").slice(5, 16))}</td><td>${esc(x.from)} &rarr; <b>${esc(x.to)}</b></td></tr>`).join("")}</table>` : "none yet";
+  } catch (err) { document.getElementById("clock").textContent = "offline"; }
+}
+tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>

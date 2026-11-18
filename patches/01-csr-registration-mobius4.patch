@@ -1,0 +1,17 @@
+diff --git a/source/server/onem2m.c b/source/server/onem2m.c
+index 15aa81e..52db743 100644
+--- a/source/server/onem2m.c
++++ b/source/server/onem2m.c
+@@ -169,6 +169,12 @@ void init_csr(cJSON *csr)
+ 	cJSON_DeleteItemFromObject(csr, "at");
+ 	cJSON_DeleteItemFromObject(csr, "aa");
+ 	cJSON_DeleteItemFromObject(csr, "acpi");
++#ifdef INTEROP_R2A_CSR
++	/* spike: Mobius 3.0 (R2a) rejects attributes it does not define for csr */
++	cJSON_DeleteItemFromObject(csr, "dcse");
++	cJSON_DeleteItemFromObject(csr, "ast");
++	cJSON_DeleteItemFromObject(csr, "spi");
++#endif
+ }
+ 
+ void add_general_attribute(cJSON *root, RTNode *parent_rtnode, ResourceType ty)

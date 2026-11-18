@@ -1,0 +1,21 @@
+{
+  "_note": "Dry-surface reference frequency (f_dry) per node; the model normalises frequency as freq / f_dry. The values below are PLACEHOLDERS taken from the synthetic data spec, not field measurements. Before a field deployment, put each node on a dry surface, run `python3 firmware/gateway_onem2m.py --calib`, and replace f_dry_ref_hz and source with the measured value.",
+  "nodes": {
+    "1": {
+      "f_dry_ref_hz": 923.36,
+      "source": "placeholder (synthetic spec), not measured"
+    },
+    "2": {
+      "f_dry_ref_hz": 1005.02,
+      "source": "placeholder (synthetic spec), not measured"
+    },
+    "3": {
+      "f_dry_ref_hz": 971.81,
+      "source": "placeholder (synthetic spec), not measured"
+    },
+    "4": {
+      "f_dry_ref_hz": 1100.0,
+      "source": "placeholder (synthetic spec), not measured"
+    }
+  }
+}

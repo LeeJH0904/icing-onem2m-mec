@@ -1,0 +1,17 @@
+{
+  "_comment": "MEC 030 publish_v2x_message body for the hosted ETSI MEC Sandbox (AdvantEDGE V2X Information Service, API v3.2.2). Root attributes: msgContent, msgRepresentationFormat, msgPropertiesValues. warning_ae.py overwrites msgContent (hex of the warning summary) and msgPropertiesValues.locationInfo.geoArea (the node position). IMPORTANT (confirmed 2026-11-14 from the Sandbox source go-packages/meep-vis-traffic-mgr/mqtt.go): the broker's Send accepts ONLY msgRepresentationFormat == 'hexadump' and hex-decodes msgContent; any other value (e.g. 'base64') is answered HTTP 500 'MQTT encoding not supported'. So msgContent MUST be a hex string and msgRepresentationFormat MUST be 'hexadump'. The publish path does not parse ecgi/msgType/content, so those values are not validated. If a Sandbox update changes the schema, paste the Swagger 'Example Value' here and keep the structure.",
+  "msgContent": "",
+  "msgRepresentationFormat": "hexadump",
+  "msgPropertiesValues": {
+    "stdOrganization": "ETSI",
+    "msgType": "denm",
+    "msgProtocolVersion": 1,
+    "locationInfo": {
+      "ecgi": {
+        "cellId": { "cellId": "2345178" },
+        "plmn": { "mcc": "001", "mnc": "01" }
+      },
+      "geoArea": { "latitude": 0.0, "longitude": 0.0 }
+    }
+  }
+}

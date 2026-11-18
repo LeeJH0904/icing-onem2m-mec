@@ -1,0 +1,14 @@
+{
+  "cse": {
+    "admin": "SAdminIcing",
+    "sp_id": "//icing.cloud",
+    "cse_id": "/Mobius4",
+    "csebase_rn": "Mobius",
+    "poa": ["http://127.0.0.1:7599"]
+  },
+  "http": { "port": 7599 },
+  "request": { "max_body_size": "20mb" },
+  "mqtt": { "enabled": false },
+  "db": { "user": "icing", "pw": "CHANGE_ME" },
+  "logging": { "level": "info", "console": { "pretty": false }, "file": { "enabled": false } }
+}

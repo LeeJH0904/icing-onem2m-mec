@@ -1,0 +1,11 @@
+{
+  "_comment": "Where the icing nodes stand and whom to warn. The ETSI MEC Sandbox V2X scenario is an emulated network over Monaco (not a real deployment). The vehicle 10.100.0.1 drives a long deterministic loop; a single mec_probe.py --track 120 window only shows one segment of it (two windows sampled 2026-11-14 covered lat 43.744->43.733 and lat 43.737->43.728). The three nodes are spread across both observed segments so the vehicle approaches at least one during a ~2-min replay, with radius_m widened to 700 m for margin. If your demo window shows a different segment, re-run mec_probe.py --track and move a node onto it.",
+  "vehicles": ["10.100.0.1"],
+  "radius_m": 700,
+  "check_interval_s": 2.0,
+  "nodes": {
+    "1": {"lat": 43.7405, "lon": 7.4295, "label": "north segment (zone04)"},
+    "2": {"lat": 43.7345, "lon": 7.4165, "label": "central corridor (zone01/03)"},
+    "3": {"lat": 43.7300, "lon": 7.4140, "label": "south segment (zone01)"}
+  }
+}

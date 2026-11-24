@@ -121,3 +121,6 @@ gives the same 500 with `content-length: 0` for that body
 
 MIT — see [LICENSE](LICENSE). Exception: `patches/` modify [tinyIoT](https://github.com/seslabSJU/tinyIoT) and
 are provided under its BSD 3-Clause License. tinyIoT and Mobius4 are not redistributed in this repository.
+
+### Hackster.io
+https://www.hackster.io/ijaeho0904/lee-onem2m-international-hackathon-2026-3412c7
